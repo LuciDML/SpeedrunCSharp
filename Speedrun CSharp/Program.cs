@@ -13,7 +13,7 @@ namespace Speedrun_CSharp
         public DateTime DataDeNascimento;
         public byte NumeroDoCalcado;
     }
-
+     
     class Program
     {
         static void Main(string[] args)
