@@ -4,37 +4,51 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
+using Speedrun_CSharp.Objetos;
+using Speedrun_CSharp.Serializadores;
+
 namespace Speedrun_CSharp
 {
-    class Pessoa
-    {
-        public string Nome;
-        public string SobreNome;
-        public DateTime DataDeNascimento;
-        public byte NumeroDoCalcado;
-    }
-     
     class Program
     {
         static void Main(string[] args)
         {
+            string querSair = "n";
+
+            while(querSair != "S")
+            {
+                Console.WriteLine("Bem-Vinda ao cadastro de clientes!");
+
+                Console.WriteLine("Digite C para cadastrar ou qualquer coisa para listagem");
+
+                var opcao = Console.ReadLine().ToUpper();
+
+                if (opcao == "C")
+                {
+                    RealizarCadastro();
+                }
+                else
+                {
+                    RealizarLeitura();
+                }
+
+                querSair = Console.ReadLine().ToUpper();
+            }
+        }
+
+        static void RealizarCadastro()
+        {
             Pessoa usuaria = new Pessoa();
 
-            /*
-            usuaria.Nome = "luciana";
-            usuaria.DataDeNascimento = new DateTime(2001, 11, 30);
-            usuaria.NumeroDoCalcado = 32;
-            */
+            Console.WriteLine("Qual o nome da cliente?");
 
-            Console.WriteLine("Ola, qual seu nome?");
+            usuaria.Nome = Console.ReadLine().Replace(",", "");
 
-            usuaria.Nome = Console.ReadLine();
-            
-            Console.WriteLine("Ola, qual seu sobrenome?");
+            Console.WriteLine("Qual o sobrenome?");
 
-            usuaria.SobreNome = Console.ReadLine();
+            usuaria.SobreNome = Console.ReadLine().Replace(",", "");
 
-            Console.WriteLine($"Opa { usuaria.Nome }, beleza? Qual sua data de nascimento?");
+            Console.WriteLine($"Cadastrando { usuaria.NomeCompleto }. Qual a data de nascimento?");
 
             try
             {
@@ -42,7 +56,7 @@ namespace Speedrun_CSharp
                 
                 if (usuaria.DataDeNascimento > DateTime.Now)
                 {
-                    Console.WriteLine("Vc nasceu no futuro, nao rola...");
+                    Console.WriteLine("Cliente nasceu no futuro, data será ignorada.");
 
                     usuaria.DataDeNascimento = new DateTime();
                 }
@@ -53,10 +67,10 @@ namespace Speedrun_CSharp
             }
             catch
             {
-                Console.WriteLine("Olha nao entendi a data mas beleza...");
+                Console.WriteLine("Data inválida, ignorando...");
             }
 
-            Console.WriteLine("Qual numero vc calca?");
+            Console.WriteLine("Qual numero do calçado?");
 
             try
             {
@@ -64,7 +78,7 @@ namespace Speedrun_CSharp
 
                 if (usuaria.NumeroDoCalcado > 40)
                 {
-                    Console.WriteLine("Desculpa mas não temos calçado tamanho " + usuaria.NumeroDoCalcado);
+                    Console.WriteLine("Atenção! Não temos calçado tamanho " + usuaria.NumeroDoCalcado);
                 }
                 else
                 {
@@ -73,21 +87,40 @@ namespace Speedrun_CSharp
             }
             catch 
             {
-                Console.WriteLine("Esse número parece errado mas ok...");
+                Console.WriteLine("Esse número parece errado, ignorando...");
             }
 
-            string conteudo = "";
+            //SerializadorSimples.Serializar(usuaria);
 
-            conteudo = conteudo + usuaria.Nome + Environment.NewLine;
-            conteudo = conteudo + usuaria.SobreNome + Environment.NewLine;
-            conteudo = conteudo + usuaria.DataDeNascimento + Environment.NewLine;
-            conteudo = conteudo + usuaria.NumeroDoCalcado + Environment.NewLine;
+            //SerializadorCSV.Serializar(usuaria);
 
-            File.WriteAllText(@"E:\projetos\TIcomLuci\02 - Speedrun CSharp\Speedrun CSharp\Speedrun CSharp\dados.txt", conteudo);
-            
-            Console.WriteLine("Gravamos seus dados. Obrigada!");
+            SerializadorJSON.Serializar(usuaria);
 
-            Console.ReadLine();
+            Console.Write("Gravamos os dados da cliente. Obrigada! Deseja sair (s/n)? ");
+        }
+
+        static void RealizarLeitura()
+        {
+            //var lista = SerializadorSimples.LerDados();
+            //var lista = SerializadorCSV.LerDados();
+
+            var lista = SerializadorJSON.LerDados();
+
+            if (lista.Count > 0)
+            {
+                for (int i = 0; i < lista.Count; i++)
+                {
+                    Console.WriteLine(
+                        lista[i].NomeCompleto + 
+                        " nascida em " + lista[i].DataDeNascimento +
+                        " calça " + lista[i].NumeroDoCalcado
+                    );
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nao existem clientes cadastradas.");
+            }
         }
     }
 }
